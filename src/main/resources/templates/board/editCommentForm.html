@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>게시글 상세보기</title>
+</head>
+<body>
+<h1>게시글 상세보기</h1>
+<form action="/board/delete" method="post">
+
+    <input type="hidden" id="id" name="id" class="form-control" value="번호" th:value="${boardDto.id}" readonly>
+
+    <div>
+        <label for="loginId">글쓴이(아이디)</label>
+        <input type="text" id="loginId" name="loginId" class="form-control" value="상품A"
+               th:value="${boardDto.loginId}" readonly>
+    </div>
+
+    <div>
+        <label for="tile">제목</label>
+        <input type="text" id="tile" name="title" value="제목" th:value="${boardDto.title}" readonly>
+    </div>
+
+    <div>
+        <label for="content">내용</label>
+        <input type="text" id="content" name="content" value="내용" th:value="${boardDto.content}" readonly>
+    </div>
+
+    <div>
+        <label for="views">조회수</label>
+        <input type="text" id="views" name="views" value="조회수" th:value="${boardDto.views}" readonly>
+    </div>
+
+    <div th:if="${boardDto.attachFile}">
+        첨부파일: <a th:href="|/attach/${boardDto.id}|" th:text="${boardDto.attachFile.getUploadFileName()}"></a>
+    </div>
+
+    <img th:each="imageFile : ${boardDto.imageFiles}" th:src="|/images/${imageFile.getStoreFileName()}|" width="300" height="300"/><br>
+
+    <br><br>
+</form>
+
+    <p th:text="${errorMessage}"></p>
+    <a href="/">Back to Home</a>
+<!--    댓글-->
+<h5 th:text="|${#lists.size(boardDto.comments)}개의 댓글이 있습니다.|"></h5>
+
+<form  th:action="@{/comment/{commentId}/edit(commentId=${commentId})}" method="post">
+
+
+    <!-- name값이 controller에 전달 될때 key값이 된다. 즉, id 멤버변수를 가지고 있는 boardDto의 id 값이 세팅된다. -->
+    <!-- 현재는 코드를 수정하였지만 기억하기 위해 남겨둔다. -->
+    <input type="hidden" id="boardId" name="id" th:value="${boardDto.id}"/>
+
+    <ul th:each="comment : ${boardDto.comments}">
+        <!-- 수정 누른 댓글 -->
+        <div th:if="${commentId} == ${comment.commentId}">
+            <input name="commentContent" th:placeholder="${comment.commentContent}" />
+            <button type="submit">저장</button>
+            <button onclick="location.href='../list.html'"
+                    th:onclick="|location.href='@{/board/{boardId}(boardId=${boardDto.id})}'|"
+                    type="button">취소
+            </button>
+        </div>
+        <!-- 나머지 댓글 -->
+        <li th:unless="${commentId} == ${comment.commentId}" th:text="${comment.commentContent}"></li>
+    </ul>
+</form>
+
+</body>
+</html>
